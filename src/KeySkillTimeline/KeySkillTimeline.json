@@ -1,0 +1,12 @@
+{
+  "Author": "Local",
+  "Name": "关键技能时间轴",
+  "Punchline": "可视化副本技能计划、提前提醒与读条校时。",
+  "Description": "为妖星乱舞绝境战的白魔法师提供可编辑的关键技能时间轴。支持每项技能独立开关、颜色、提前秒数、中文语音、计划编辑、导入导出、手动及首领读条自动校时。命令：/kst",
+  "ApplicableVersion": "any",
+  "Tags": [
+    "timeline",
+    "white mage",
+    "utility"
+  ]
+}
