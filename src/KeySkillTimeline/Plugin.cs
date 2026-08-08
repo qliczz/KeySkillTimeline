@@ -35,7 +35,7 @@ public sealed class Plugin : IDalamudPlugin
     {
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
         Configuration.Initialize(PluginInterface);
-        speech = new SpeechService(Log);
+        speech = new SpeechService(PluginInterface, Log);
         Engine = new TimelineEngine(Configuration, ClientState, Condition, PlayerState, ObjectTable, NotificationManager, Log, speech);
         mainWindow = new MainWindow(this, Engine);
         overlayWindow = new OverlayWindow(this, Engine) { IsOpen = Configuration.ShowOverlay };
