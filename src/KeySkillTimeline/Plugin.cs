@@ -1,4 +1,5 @@
 using Dalamud.Game.Command;
+using Dalamud.Interface.ManagedFontAtlas;
 using Dalamud.Interface.Windowing;
 using Dalamud.IoC;
 using Dalamud.Plugin;
@@ -27,6 +28,8 @@ public sealed class Plugin : IDalamudPlugin
     private readonly MainWindow mainWindow;
     private readonly OverlayWindow overlayWindow;
     private readonly ConfigWindow configWindow;
+    private IFontHandle? overlayFont;
+    private int overlayFontSizePx;
 
     public Configuration Configuration { get; }
     public TimelineEngine Engine { get; }
@@ -65,6 +68,7 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.OpenConfigUi -= ToggleConfigUi;
         CommandManager.RemoveHandler(CommandName);
         windowSystem.RemoveAllWindows();
+        overlayFont?.Dispose();
         speech.Dispose();
     }
 
@@ -72,6 +76,20 @@ public sealed class Plugin : IDalamudPlugin
     public void ToggleConfigUi() => configWindow.Toggle();
     public bool IsOverlayVisible => overlayWindow.IsCurrentlyVisible;
     public string OverlayVisibilityStatus => overlayWindow.VisibilityStatus();
+
+    public IDisposable PushOverlayFont()
+    {
+        var sizePx = Math.Clamp(Configuration.OverlayFontSizePx, 14, 48);
+        if (overlayFont is null || overlayFontSizePx != sizePx)
+        {
+            overlayFont?.Dispose();
+            overlayFontSizePx = sizePx;
+            overlayFont = PluginInterface.UiBuilder.FontAtlas.NewDelegateFontHandle(
+                step => step.OnPreBuild(toolkit => toolkit.AddDalamudDefaultFont(sizePx)));
+        }
+
+        return overlayFont.Push();
+    }
 
     public void SetOverlayOpen(bool open)
     {
