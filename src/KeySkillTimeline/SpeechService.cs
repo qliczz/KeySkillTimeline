@@ -7,30 +7,34 @@ namespace KeySkillTimeline;
 public sealed class SpeechService : IDisposable
 {
     private readonly IPluginLog log;
-    private readonly SpeechSynthesizer synthesizer = new();
-    private bool available = true;
+    private SpeechSynthesizer? synthesizer;
+    private bool available;
 
     public SpeechService(IPluginLog log)
     {
         this.log = log;
         try
         {
-            var chinese = synthesizer.GetInstalledVoices(new CultureInfo("zh-CN"))
+            var candidate = new SpeechSynthesizer();
+            var chinese = candidate.GetInstalledVoices(new CultureInfo("zh-CN"))
                 .FirstOrDefault(x => x.Enabled);
             if (chinese is null)
             {
-                available = false;
+                candidate.Dispose();
                 log.Warning("No zh-CN Windows speech voice is installed.");
             }
             else
             {
-                synthesizer.SelectVoice(chinese.VoiceInfo.Name);
+                candidate.SelectVoice(chinese.VoiceInfo.Name);
+                synthesizer = candidate;
+                available = true;
             }
         }
         catch (Exception ex)
         {
             available = false;
-            log.Warning(ex, "No usable Windows speech voice was found.");
+            synthesizer = null;
+            log.Warning(ex, "Windows speech is unavailable; voice reminders are disabled, but the plugin will continue loading.");
         }
     }
 
@@ -38,7 +42,7 @@ public sealed class SpeechService : IDisposable
 
     public void Speak(string text, int rate)
     {
-        if (!available || string.IsNullOrWhiteSpace(text))
+        if (!available || synthesizer is null || string.IsNullOrWhiteSpace(text))
             return;
         try
         {
@@ -57,8 +61,8 @@ public sealed class SpeechService : IDisposable
     {
         try
         {
-            synthesizer.SpeakAsyncCancelAll();
-            synthesizer.Dispose();
+            synthesizer?.SpeakAsyncCancelAll();
+            synthesizer?.Dispose();
         }
         catch
         {
