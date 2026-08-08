@@ -66,8 +66,17 @@ public sealed class ConfigWindow : Window
         changed |= EditCheckbox("悬浮窗显示备注", configuration.OverlayShowNotes, x => configuration.OverlayShowNotes = x);
         changed |= EditCheckbox("锁定悬浮窗位置并隐藏标题栏", configuration.OverlayLocked, x => configuration.OverlayLocked = x);
         changed |= EditCheckbox("鼠标穿透（需用 /kst unlock 解锁）", configuration.OverlayClickThrough, x => configuration.OverlayClickThrough = x);
-        if (ImGui.Button("显示并解锁悬浮窗"))
-            plugin.UnlockOverlay();
+        if (ImGui.Button(plugin.IsOverlayVisible ? "隐藏悬浮窗" : "立即显示悬浮窗"))
+        {
+            if (plugin.IsOverlayVisible)
+                plugin.SetOverlayOpen(false);
+            else
+                plugin.UnlockOverlay();
+        }
+        ImGui.SameLine();
+        ImGui.TextColored(
+            plugin.IsOverlayVisible ? new Vector4(0.35f, 0.9f, 0.48f, 1f) : new Vector4(1f, 0.68f, 0.25f, 1f),
+            plugin.OverlayVisibilityStatus);
 
         var overlayOpacity = configuration.OverlayBackgroundOpacity;
         if (ImGui.SliderFloat("悬浮窗背景透明度", ref overlayOpacity, 0.05f, 1f, "%.2f"))

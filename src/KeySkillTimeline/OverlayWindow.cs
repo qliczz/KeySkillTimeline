@@ -9,6 +9,7 @@ public sealed class OverlayWindow : Window
     private readonly Plugin plugin;
     private readonly TimelineEngine engine;
     private DateTime previewUntil;
+    private bool manualVisibilityOverride;
 
     public OverlayWindow(Plugin plugin, TimelineEngine engine)
         : base("技能时间轴悬浮窗##KeySkillTimelineOverlay")
@@ -27,6 +28,8 @@ public sealed class OverlayWindow : Window
         var preview = DateTime.UtcNow <= previewUntil;
         if (!config.ShowOverlay)
             return false;
+        if (manualVisibilityOverride)
+            return true;
         if (!preview && config.OverlayOnlyWhenApplicable && !engine.IsApplicable())
             return false;
         if (!preview && config.OverlayOnlyWhileRunning && engine.State is TimelineRunState.Idle or TimelineRunState.Complete)
@@ -35,6 +38,36 @@ public sealed class OverlayWindow : Window
     }
 
     public void ShowPreview() => previewUntil = DateTime.UtcNow.AddSeconds(30);
+
+    public void ShowManually()
+    {
+        manualVisibilityOverride = true;
+        IsOpen = true;
+    }
+
+    public void HideManually()
+    {
+        manualVisibilityOverride = false;
+        IsOpen = false;
+    }
+
+    public bool IsCurrentlyVisible => IsOpen && DrawConditions();
+
+    public string VisibilityStatus()
+    {
+        var config = plugin.Configuration;
+        if (!config.ShowOverlay)
+            return "已关闭：悬浮窗功能未启用";
+        if (!IsOpen)
+            return "已关闭：窗口开关处于关闭状态";
+        if (manualVisibilityOverride)
+            return "正在显示：手动显示模式";
+        if (config.OverlayOnlyWhenApplicable && !engine.IsApplicable())
+            return "自动隐藏：当前副本或职业不匹配";
+        if (config.OverlayOnlyWhileRunning && engine.State is TimelineRunState.Idle or TimelineRunState.Complete)
+            return "自动隐藏：时间轴尚未运行";
+        return "正在显示：自动显示条件已满足";
+    }
 
     public override void PreDraw()
     {

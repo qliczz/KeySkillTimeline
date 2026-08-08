@@ -70,15 +70,22 @@ public sealed class Plugin : IDalamudPlugin
 
     public void ToggleMainUi() => mainWindow.Toggle();
     public void ToggleConfigUi() => configWindow.Toggle();
+    public bool IsOverlayVisible => overlayWindow.IsCurrentlyVisible;
+    public string OverlayVisibilityStatus => overlayWindow.VisibilityStatus();
 
     public void SetOverlayOpen(bool open)
     {
         overlayWindow.IsOpen = open;
         Configuration.ShowOverlay = open;
+        if (open)
+            overlayWindow.ShowManually();
+        else
+            overlayWindow.HideManually();
         Configuration.Save();
+        Log.Information("Timeline overlay manually set to {State}.", open ? "visible" : "hidden");
     }
 
-    public void ToggleOverlayUi() => SetOverlayOpen(!overlayWindow.IsOpen);
+    public void ToggleOverlayUi() => SetOverlayOpen(!overlayWindow.IsCurrentlyVisible);
 
     public void UnlockOverlay()
     {
@@ -86,8 +93,7 @@ public sealed class Plugin : IDalamudPlugin
         Configuration.OverlayClickThrough = false;
         Configuration.ShowOverlay = true;
         Configuration.Save();
-        overlayWindow.IsOpen = true;
-        overlayWindow.ShowPreview();
+        overlayWindow.ShowManually();
         overlayWindow.BringToFront();
     }
 
