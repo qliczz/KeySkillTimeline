@@ -1,8 +1,8 @@
 {
   "Author": "斯温",
   "Name": "关键技能时间轴",
-  "Punchline": "悬浮显示下一技能与释放倒计时。",
-  "Description": "为妖星乱舞绝境战的白魔法师提供下一技能悬浮倒计时与完整计划编辑器。悬浮窗只显示下一技能和剩余秒数，支持自定义尺寸、缩放、透明度、锁定及鼠标穿透；语音优先调用 EdgeTTS.Dalamud，并可回退 Windows TTS。命令：/kst",
+  "Punchline": "无标题悬浮显示下一技能与释放倒计时。",
+  "Description": "为妖星乱舞绝境战的白魔法师提供下一技能悬浮倒计时与完整计划编辑器。无标题悬浮窗只显示下一技能和剩余秒数，支持自定义尺寸、真实像素字号、透明度、锁定及鼠标穿透；语音优先调用 EdgeTTS.Dalamud，并可回退 Windows TTS。命令：/kst",
   "ApplicableVersion": "any",
   "Tags": [
     "timeline",

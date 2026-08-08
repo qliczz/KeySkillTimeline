@@ -74,9 +74,10 @@ public sealed class OverlayWindow : Window
         var config = plugin.Configuration;
         var flags = ImGuiWindowFlags.NoResize
                     | ImGuiWindowFlags.NoScrollbar
-                    | ImGuiWindowFlags.NoScrollWithMouse;
+                    | ImGuiWindowFlags.NoScrollWithMouse
+                    | ImGuiWindowFlags.NoTitleBar;
         if (config.OverlayLocked || config.OverlayClickThrough)
-            flags |= ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoMove;
+            flags |= ImGuiWindowFlags.NoMove;
         if (config.OverlayClickThrough)
             flags |= ImGuiWindowFlags.NoInputs;
         Flags = flags;
@@ -95,8 +96,8 @@ public sealed class OverlayWindow : Window
 
     public override void Draw()
     {
+        using var font = plugin.PushOverlayFont();
         var next = engine.Upcoming(engine.CurrentTime - 0.01f, DancingMadPreset.DurationSeconds).FirstOrDefault();
-        ImGui.SetWindowFontScale(plugin.Configuration.OverlayContentScale);
         if (next.Entry is null)
         {
             DrawCenteredLine("没有后续技能", new Vector4(0.65f, 0.67f, 0.72f, 1f), 0.5f);

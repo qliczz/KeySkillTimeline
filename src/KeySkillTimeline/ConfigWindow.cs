@@ -63,8 +63,9 @@ public sealed class ConfigWindow : Window
         changed |= EditCheckbox("启用紧凑悬浮窗", configuration.ShowOverlay, plugin.SetOverlayOpen);
         changed |= EditCheckbox("仅在时间轴运行时显示", configuration.OverlayOnlyWhileRunning, x => configuration.OverlayOnlyWhileRunning = x);
         changed |= EditCheckbox("仅在副本与职业匹配时显示", configuration.OverlayOnlyWhenApplicable, x => configuration.OverlayOnlyWhenApplicable = x);
-        changed |= EditCheckbox("锁定悬浮窗位置并隐藏标题栏", configuration.OverlayLocked, x => configuration.OverlayLocked = x);
+        changed |= EditCheckbox("锁定悬浮窗位置", configuration.OverlayLocked, x => configuration.OverlayLocked = x);
         changed |= EditCheckbox("鼠标穿透（需用 /kst unlock 解锁）", configuration.OverlayClickThrough, x => configuration.OverlayClickThrough = x);
+        ImGui.TextDisabled("悬浮窗不显示标题栏；解锁后可拖动窗口空白区域。文字使用真实像素字号，不做模糊缩放。");
         if (ImGui.Button(plugin.IsOverlayVisible ? "隐藏悬浮窗" : "立即显示悬浮窗"))
         {
             if (plugin.IsOverlayVisible)
@@ -95,10 +96,10 @@ public sealed class ConfigWindow : Window
             configuration.OverlayHeight = overlayHeight;
             changed = true;
         }
-        var overlayScale = configuration.OverlayContentScale;
-        if (ImGui.SliderFloat("悬浮窗文字缩放", ref overlayScale, 0.7f, 2.5f, "%.2f"))
+        var overlayFontSize = configuration.OverlayFontSizePx;
+        if (ImGui.SliderInt("悬浮窗文字字号", ref overlayFontSize, 14, 48, "%d px"))
         {
-            configuration.OverlayContentScale = overlayScale;
+            configuration.OverlayFontSizePx = overlayFontSize;
             changed = true;
         }
         if (ImGui.Button("恢复悬浮窗外观默认值"))
@@ -106,7 +107,7 @@ public sealed class ConfigWindow : Window
             configuration.OverlayBackgroundOpacity = 0.86f;
             configuration.OverlayWidth = 420f;
             configuration.OverlayHeight = 120f;
-            configuration.OverlayContentScale = 1.35f;
+            configuration.OverlayFontSizePx = 24;
             configuration.OverlayLocked = false;
             configuration.OverlayClickThrough = false;
             changed = true;

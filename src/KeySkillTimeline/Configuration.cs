@@ -6,7 +6,7 @@ namespace KeySkillTimeline;
 [Serializable]
 public sealed class Configuration : IPluginConfiguration
 {
-    public int Version { get; set; } = 3;
+    public int Version { get; set; } = 4;
     public bool Enabled { get; set; } = true;
     public bool AutoStart { get; set; } = true;
     public bool AutoOpen { get; set; } = true;
@@ -31,7 +31,7 @@ public sealed class Configuration : IPluginConfiguration
     public float OverlayBackgroundOpacity { get; set; } = 0.86f;
     public float OverlayWidth { get; set; } = 420f;
     public float OverlayHeight { get; set; } = 120f;
-    public float OverlayContentScale { get; set; } = 1.35f;
+    public int OverlayFontSizePx { get; set; } = 24;
     public int TtsRate { get; set; }
     public List<SkillSetting> Skills { get; set; } = [];
     public List<TimelineEntry> Entries { get; set; } = [];
@@ -54,7 +54,12 @@ public sealed class Configuration : IPluginConfiguration
             Version = 3;
             OverlayWidth = 420f;
             OverlayHeight = 120f;
-            OverlayContentScale = 1.35f;
+            migrated = true;
+        }
+        if (Version < 4)
+        {
+            Version = 4;
+            OverlayFontSizePx = 24;
             migrated = true;
         }
         if (Skills.Count == 0)
@@ -90,7 +95,7 @@ public sealed class Configuration : IPluginConfiguration
         OverlayBackgroundOpacity = Math.Clamp(OverlayBackgroundOpacity, 0.05f, 1f);
         OverlayWidth = Math.Clamp(OverlayWidth, 220f, 900f);
         OverlayHeight = Math.Clamp(OverlayHeight, 70f, 300f);
-        OverlayContentScale = Math.Clamp(OverlayContentScale, 0.7f, 2.5f);
+        OverlayFontSizePx = Math.Clamp(OverlayFontSizePx, 14, 48);
         Entries = Entries.OrderBy(x => x.TimeSeconds).ToList();
     }
 
