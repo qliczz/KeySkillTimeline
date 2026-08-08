@@ -56,7 +56,7 @@ public sealed class MainWindow : Window
         if (ImGui.Button("测试提醒"))
             engine.TestReminder();
         ImGui.SameLine();
-        if (ImGui.Button("悬浮窗"))
+        if (ImGui.Button(plugin.IsOverlayVisible ? "隐藏悬浮窗" : "显示悬浮窗"))
             plugin.ToggleOverlayUi();
         ImGui.SameLine();
         if (ImGui.Button("设置 / 编辑计划"))
