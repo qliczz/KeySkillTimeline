@@ -6,7 +6,7 @@ namespace KeySkillTimeline;
 [Serializable]
 public sealed class Configuration : IPluginConfiguration
 {
-    public int Version { get; set; } = 2;
+    public int Version { get; set; } = 3;
     public bool Enabled { get; set; } = true;
     public bool AutoStart { get; set; } = true;
     public bool AutoOpen { get; set; } = true;
@@ -22,7 +22,6 @@ public sealed class Configuration : IPluginConfiguration
     public bool OverlayClickThrough { get; set; }
     public bool OverlayOnlyWhileRunning { get; set; } = true;
     public bool OverlayOnlyWhenApplicable { get; set; } = true;
-    public bool OverlayShowNotes { get; set; } = true;
     public float VisibleFutureSeconds { get; set; } = 70f;
     public float PixelsPerSecond { get; set; } = 9f;
     public float BannerSeconds { get; set; } = 4f;
@@ -30,9 +29,9 @@ public sealed class Configuration : IPluginConfiguration
     public float SyncWindowSeconds { get; set; } = 25f;
     public float ManualOffsetSeconds { get; set; }
     public float OverlayBackgroundOpacity { get; set; } = 0.86f;
-    public float OverlayWidth { get; set; } = 470f;
-    public float OverlayFutureSeconds { get; set; } = 45f;
-    public int OverlayUpcomingRows { get; set; } = 4;
+    public float OverlayWidth { get; set; } = 420f;
+    public float OverlayHeight { get; set; } = 120f;
+    public float OverlayContentScale { get; set; } = 1.35f;
     public int TtsRate { get; set; }
     public List<SkillSetting> Skills { get; set; } = [];
     public List<TimelineEntry> Entries { get; set; } = [];
@@ -48,6 +47,14 @@ public sealed class Configuration : IPluginConfiguration
             Version = 2;
             AutoOpen = false;
             ShowOverlay = true;
+            migrated = true;
+        }
+        if (Version < 3)
+        {
+            Version = 3;
+            OverlayWidth = 420f;
+            OverlayHeight = 120f;
+            OverlayContentScale = 1.35f;
             migrated = true;
         }
         if (Skills.Count == 0)
@@ -81,9 +88,9 @@ public sealed class Configuration : IPluginConfiguration
             entry.TimeSeconds = Math.Max(0f, entry.TimeSeconds);
         }
         OverlayBackgroundOpacity = Math.Clamp(OverlayBackgroundOpacity, 0.05f, 1f);
-        OverlayWidth = Math.Clamp(OverlayWidth, 340f, 900f);
-        OverlayFutureSeconds = Math.Clamp(OverlayFutureSeconds, 15f, 120f);
-        OverlayUpcomingRows = Math.Clamp(OverlayUpcomingRows, 2, 8);
+        OverlayWidth = Math.Clamp(OverlayWidth, 220f, 900f);
+        OverlayHeight = Math.Clamp(OverlayHeight, 70f, 300f);
+        OverlayContentScale = Math.Clamp(OverlayContentScale, 0.7f, 2.5f);
         Entries = Entries.OrderBy(x => x.TimeSeconds).ToList();
     }
 

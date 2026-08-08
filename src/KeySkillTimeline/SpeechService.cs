@@ -1,5 +1,7 @@
 using System.Globalization;
 using System.Speech.Synthesis;
+using Dalamud.Plugin;
+using Dalamud.Plugin.Ipc;
 using Dalamud.Plugin.Services;
 
 namespace KeySkillTimeline;
@@ -7,12 +9,14 @@ namespace KeySkillTimeline;
 public sealed class SpeechService : IDisposable
 {
     private readonly IPluginLog log;
+    private readonly ICallGateSubscriber<string, object> edgeTts;
     private SpeechSynthesizer? synthesizer;
-    private bool available;
+    private bool windowsAvailable;
 
-    public SpeechService(IPluginLog log)
+    public SpeechService(IDalamudPluginInterface pluginInterface, IPluginLog log)
     {
         this.log = log;
+        edgeTts = pluginInterface.GetIpcSubscriber<string, object>("EdgeTTS.Speak");
         try
         {
             var candidate = new SpeechSynthesizer();
@@ -27,22 +31,54 @@ public sealed class SpeechService : IDisposable
             {
                 candidate.SelectVoice(chinese.VoiceInfo.Name);
                 synthesizer = candidate;
-                available = true;
+                windowsAvailable = true;
             }
         }
         catch (Exception ex)
         {
-            available = false;
+            windowsAvailable = false;
             synthesizer = null;
             log.Warning(ex, "Windows speech is unavailable; voice reminders are disabled, but the plugin will continue loading.");
         }
     }
 
-    public bool Available => available;
+    public bool Available => EdgeTtsAvailable || windowsAvailable;
+    public string ProviderName => EdgeTtsAvailable ? "EdgeTTS.Dalamud" : windowsAvailable ? "Windows TTS" : "不可用";
+
+    private bool EdgeTtsAvailable
+    {
+        get
+        {
+            try
+            {
+                return edgeTts.HasAction;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+    }
 
     public void Speak(string text, int rate)
     {
-        if (!available || synthesizer is null || string.IsNullOrWhiteSpace(text))
+        if (string.IsNullOrWhiteSpace(text))
+            return;
+
+        try
+        {
+            if (edgeTts.HasAction)
+            {
+                edgeTts.InvokeAction(text);
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            log.Warning(ex, "EdgeTTS IPC failed; falling back to Windows speech.");
+        }
+
+        if (!windowsAvailable || synthesizer is null)
             return;
         try
         {
@@ -52,7 +88,7 @@ public sealed class SpeechService : IDisposable
         }
         catch (Exception ex)
         {
-            available = false;
+            windowsAvailable = false;
             log.Warning(ex, "TTS failed and has been disabled for this session.");
         }
     }

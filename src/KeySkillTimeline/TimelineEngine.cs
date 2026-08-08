@@ -61,6 +61,7 @@ public sealed class TimelineEngine
     public ReminderEvent? ActiveReminder { get; private set; }
     public DateTime ActiveReminderUntil { get; private set; }
     public bool SpeechAvailable => speech.Available;
+    public string SpeechProviderName => speech.ProviderName;
 
     public event Action? EncounterStarted;
 

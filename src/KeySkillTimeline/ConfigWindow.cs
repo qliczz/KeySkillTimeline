@@ -63,7 +63,6 @@ public sealed class ConfigWindow : Window
         changed |= EditCheckbox("启用紧凑悬浮窗", configuration.ShowOverlay, plugin.SetOverlayOpen);
         changed |= EditCheckbox("仅在时间轴运行时显示", configuration.OverlayOnlyWhileRunning, x => configuration.OverlayOnlyWhileRunning = x);
         changed |= EditCheckbox("仅在副本与职业匹配时显示", configuration.OverlayOnlyWhenApplicable, x => configuration.OverlayOnlyWhenApplicable = x);
-        changed |= EditCheckbox("悬浮窗显示备注", configuration.OverlayShowNotes, x => configuration.OverlayShowNotes = x);
         changed |= EditCheckbox("锁定悬浮窗位置并隐藏标题栏", configuration.OverlayLocked, x => configuration.OverlayLocked = x);
         changed |= EditCheckbox("鼠标穿透（需用 /kst unlock 解锁）", configuration.OverlayClickThrough, x => configuration.OverlayClickThrough = x);
         if (ImGui.Button(plugin.IsOverlayVisible ? "隐藏悬浮窗" : "立即显示悬浮窗"))
@@ -85,27 +84,38 @@ public sealed class ConfigWindow : Window
             changed = true;
         }
         var overlayWidth = configuration.OverlayWidth;
-        if (ImGui.SliderFloat("悬浮窗宽度", ref overlayWidth, 340f, 900f, "%.0f px"))
+        if (ImGui.SliderFloat("悬浮窗宽度", ref overlayWidth, 220f, 900f, "%.0f px"))
         {
             configuration.OverlayWidth = overlayWidth;
             changed = true;
         }
-        var overlayFuture = configuration.OverlayFutureSeconds;
-        if (ImGui.SliderFloat("悬浮时间轴范围（秒）", ref overlayFuture, 15f, 120f, "%.0f"))
+        var overlayHeight = configuration.OverlayHeight;
+        if (ImGui.SliderFloat("悬浮窗高度", ref overlayHeight, 70f, 300f, "%.0f px"))
         {
-            configuration.OverlayFutureSeconds = overlayFuture;
+            configuration.OverlayHeight = overlayHeight;
             changed = true;
         }
-        var overlayRows = configuration.OverlayUpcomingRows;
-        if (ImGui.SliderInt("悬浮窗近期技能行数", ref overlayRows, 2, 8))
+        var overlayScale = configuration.OverlayContentScale;
+        if (ImGui.SliderFloat("悬浮窗文字缩放", ref overlayScale, 0.7f, 2.5f, "%.2f"))
         {
-            configuration.OverlayUpcomingRows = overlayRows;
+            configuration.OverlayContentScale = overlayScale;
+            changed = true;
+        }
+        if (ImGui.Button("恢复悬浮窗外观默认值"))
+        {
+            configuration.OverlayBackgroundOpacity = 0.86f;
+            configuration.OverlayWidth = 420f;
+            configuration.OverlayHeight = 120f;
+            configuration.OverlayContentScale = 1.35f;
+            configuration.OverlayLocked = false;
+            configuration.OverlayClickThrough = false;
             changed = true;
         }
         ImGui.Separator();
         changed |= EditCheckbox("显示大字视觉提醒", configuration.EnableVisualBanner, x => configuration.EnableVisualBanner = x);
         changed |= EditCheckbox("显示 Dalamud 桌面通知", configuration.EnableDalamudNotification, x => configuration.EnableDalamudNotification = x);
-        changed |= EditCheckbox("中文语音提醒（Windows TTS）", configuration.EnableChineseTts, x => configuration.EnableChineseTts = x);
+        changed |= EditCheckbox("中文语音提醒（优先 EdgeTTS）", configuration.EnableChineseTts, x => configuration.EnableChineseTts = x);
+        ImGui.TextDisabled($"当前语音提供者：{plugin.Engine.SpeechProviderName}");
         if (!plugin.Engine.SpeechAvailable)
             ImGui.TextColored(new Vector4(1f, 0.55f, 0.3f, 1f), "当前 Windows 没有可用的语音引擎；视觉提醒不受影响。");
         changed |= EditCheckbox("依据首领读条自动校时", configuration.EnableAutoSync, x => configuration.EnableAutoSync = x);
