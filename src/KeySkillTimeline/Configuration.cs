@@ -6,7 +6,7 @@ namespace KeySkillTimeline;
 [Serializable]
 public sealed class Configuration : IPluginConfiguration
 {
-    public int Version { get; set; } = 4;
+    public int Version { get; set; } = 5;
     public bool Enabled { get; set; } = true;
     public bool AutoStart { get; set; } = true;
     public bool AutoOpen { get; set; } = true;
@@ -62,6 +62,11 @@ public sealed class Configuration : IPluginConfiguration
             OverlayFontSizePx = 24;
             migrated = true;
         }
+        if (Version < 5)
+        {
+            Version = 5;
+            migrated = true;
+        }
         if (Skills.Count == 0)
             Skills = DancingMadPreset.CreateSkills();
         if (Entries.Count == 0)
@@ -79,11 +84,14 @@ public sealed class Configuration : IPluginConfiguration
                 Skills.Add(preset);
         }
 
+        var presets = DancingMadPreset.CreateSkills().ToDictionary(x => x.Key, StringComparer.OrdinalIgnoreCase);
         foreach (var skill in Skills)
         {
             skill.LeadSeconds = Math.Clamp(skill.LeadSeconds, 0f, 30f);
             if (string.IsNullOrWhiteSpace(skill.Name))
                 skill.Name = skill.Key;
+            if (skill.IconId == 0 && presets.TryGetValue(skill.Key, out var preset))
+                skill.IconId = preset.IconId;
         }
 
         foreach (var entry in Entries)

@@ -1,5 +1,7 @@
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Dalamud.Interface.Textures;
+using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Interface.Windowing;
 
 namespace KeySkillTimeline;
@@ -106,8 +108,38 @@ public sealed class OverlayWindow : Window
 
         var remaining = Math.Max(0f, next.Entry.TimeSeconds - engine.CurrentTime);
         var color = ImGui.ColorConvertU32ToFloat4(next.Skill.Color);
-        DrawCenteredLine(next.Skill.Name, color, 0.18f);
+        DrawCenteredSkill(next.Skill, color, 0.18f);
         DrawCenteredLine($"{remaining:0.0} 秒", new Vector4(1f, 1f, 1f, 1f), 0.68f);
+    }
+
+    private void DrawCenteredSkill(SkillSetting skill, Vector4 color, float verticalRatio)
+    {
+        var textSize = ImGui.CalcTextSize(skill.Name);
+        var iconSize = Math.Clamp(plugin.Configuration.OverlayFontSizePx * 1.4f, 22f, 56f);
+        var spacing = ImGui.GetStyle().ItemSpacing.X;
+        var lookup = new GameIconLookup(skill.IconId, false, true, null);
+        IDalamudTextureWrap? icon = null;
+        var hasIcon = skill.IconId != 0
+                      && Plugin.TextureProvider.TryGetFromGameIcon(lookup, out var shared)
+                      && shared.TryGetWrap(out icon, out _)
+                      && icon is not null;
+        var totalWidth = textSize.X + (hasIcon ? iconSize + spacing : 0f);
+        var startX = Math.Max(ImGui.GetCursorPosX(), ImGui.GetCursorPosX() + (ImGui.GetContentRegionAvail().X - totalWidth) / 2f);
+        var startY = Math.Max(ImGui.GetCursorPosY(), ImGui.GetWindowHeight() * verticalRatio);
+
+        if (hasIcon)
+        {
+            ImGui.SetCursorPos(new Vector2(startX, startY));
+            ImGui.Image(icon!.Handle, new Vector2(iconSize, iconSize));
+            ImGui.SameLine(0f, spacing);
+            ImGui.SetCursorPosY(startY + Math.Max(0f, (iconSize - textSize.Y) / 2f));
+        }
+        else
+        {
+            ImGui.SetCursorPos(new Vector2(startX, startY));
+        }
+
+        ImGui.TextColored(color, skill.Name);
     }
 
     private static void DrawCenteredLine(string text, Vector4 color, float verticalRatio)
