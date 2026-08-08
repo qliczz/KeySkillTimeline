@@ -25,6 +25,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly WindowSystem windowSystem = new("KeySkillTimeline");
     private readonly SpeechService speech;
     private readonly MainWindow mainWindow;
+    private readonly OverlayWindow overlayWindow;
     private readonly ConfigWindow configWindow;
 
     public Configuration Configuration { get; }
@@ -37,13 +38,15 @@ public sealed class Plugin : IDalamudPlugin
         speech = new SpeechService(Log);
         Engine = new TimelineEngine(Configuration, ClientState, Condition, PlayerState, ObjectTable, NotificationManager, Log, speech);
         mainWindow = new MainWindow(this, Engine);
+        overlayWindow = new OverlayWindow(this, Engine) { IsOpen = Configuration.ShowOverlay };
         configWindow = new ConfigWindow(this);
         windowSystem.AddWindow(mainWindow);
+        windowSystem.AddWindow(overlayWindow);
         windowSystem.AddWindow(configWindow);
 
         CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
         {
-            HelpMessage = "打开关键技能时间轴。参数：config / start / reset / pause / test / +1 / -1",
+            HelpMessage = "打开关键技能时间轴。参数：overlay / unlock / config / start / reset / pause / test / +1 / -1",
         });
         Framework.Update += Engine.Update;
         Engine.EncounterStarted += OnEncounterStarted;
@@ -67,6 +70,26 @@ public sealed class Plugin : IDalamudPlugin
 
     public void ToggleMainUi() => mainWindow.Toggle();
     public void ToggleConfigUi() => configWindow.Toggle();
+
+    public void SetOverlayOpen(bool open)
+    {
+        overlayWindow.IsOpen = open;
+        Configuration.ShowOverlay = open;
+        Configuration.Save();
+    }
+
+    public void ToggleOverlayUi() => SetOverlayOpen(!overlayWindow.IsOpen);
+
+    public void UnlockOverlay()
+    {
+        Configuration.OverlayLocked = false;
+        Configuration.OverlayClickThrough = false;
+        Configuration.ShowOverlay = true;
+        Configuration.Save();
+        overlayWindow.IsOpen = true;
+        overlayWindow.ShowPreview();
+        overlayWindow.BringToFront();
+    }
 
     public string ExportPlan()
     {
@@ -120,6 +143,8 @@ public sealed class Plugin : IDalamudPlugin
     {
         if (Configuration.AutoOpen)
             mainWindow.IsOpen = true;
+        if (Configuration.ShowOverlay)
+            overlayWindow.IsOpen = true;
     }
 
     private void OnCommand(string _, string args)
@@ -127,6 +152,9 @@ public sealed class Plugin : IDalamudPlugin
         switch (args.Trim().ToLowerInvariant())
         {
             case "config": ToggleConfigUi(); break;
+            case "overlay": ToggleOverlayUi(); break;
+            case "hud": ToggleOverlayUi(); break;
+            case "unlock": UnlockOverlay(); break;
             case "start": Engine.Start(); mainWindow.IsOpen = true; break;
             case "reset": Engine.Reset(); break;
             case "pause": Engine.TogglePause(); break;
