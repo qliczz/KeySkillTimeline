@@ -59,6 +59,41 @@ public sealed class ConfigWindow : Window
         changed |= EditCheckbox("仅在妖星乱舞绝境战生效", configuration.OnlyInTargetTerritory, x => configuration.OnlyInTargetTerritory = x);
         changed |= EditCheckbox("仅在白魔法师生效", configuration.OnlyOnWhiteMage, x => configuration.OnlyOnWhiteMage = x);
         ImGui.Separator();
+        ImGui.TextUnformatted("悬浮时间轴");
+        changed |= EditCheckbox("启用紧凑悬浮窗", configuration.ShowOverlay, plugin.SetOverlayOpen);
+        changed |= EditCheckbox("仅在时间轴运行时显示", configuration.OverlayOnlyWhileRunning, x => configuration.OverlayOnlyWhileRunning = x);
+        changed |= EditCheckbox("仅在副本与职业匹配时显示", configuration.OverlayOnlyWhenApplicable, x => configuration.OverlayOnlyWhenApplicable = x);
+        changed |= EditCheckbox("悬浮窗显示备注", configuration.OverlayShowNotes, x => configuration.OverlayShowNotes = x);
+        changed |= EditCheckbox("锁定悬浮窗位置并隐藏标题栏", configuration.OverlayLocked, x => configuration.OverlayLocked = x);
+        changed |= EditCheckbox("鼠标穿透（需用 /kst unlock 解锁）", configuration.OverlayClickThrough, x => configuration.OverlayClickThrough = x);
+        if (ImGui.Button("显示并解锁悬浮窗"))
+            plugin.UnlockOverlay();
+
+        var overlayOpacity = configuration.OverlayBackgroundOpacity;
+        if (ImGui.SliderFloat("悬浮窗背景透明度", ref overlayOpacity, 0.05f, 1f, "%.2f"))
+        {
+            configuration.OverlayBackgroundOpacity = overlayOpacity;
+            changed = true;
+        }
+        var overlayWidth = configuration.OverlayWidth;
+        if (ImGui.SliderFloat("悬浮窗宽度", ref overlayWidth, 340f, 900f, "%.0f px"))
+        {
+            configuration.OverlayWidth = overlayWidth;
+            changed = true;
+        }
+        var overlayFuture = configuration.OverlayFutureSeconds;
+        if (ImGui.SliderFloat("悬浮时间轴范围（秒）", ref overlayFuture, 15f, 120f, "%.0f"))
+        {
+            configuration.OverlayFutureSeconds = overlayFuture;
+            changed = true;
+        }
+        var overlayRows = configuration.OverlayUpcomingRows;
+        if (ImGui.SliderInt("悬浮窗近期技能行数", ref overlayRows, 2, 8))
+        {
+            configuration.OverlayUpcomingRows = overlayRows;
+            changed = true;
+        }
+        ImGui.Separator();
         changed |= EditCheckbox("显示大字视觉提醒", configuration.EnableVisualBanner, x => configuration.EnableVisualBanner = x);
         changed |= EditCheckbox("显示 Dalamud 桌面通知", configuration.EnableDalamudNotification, x => configuration.EnableDalamudNotification = x);
         changed |= EditCheckbox("中文语音提醒（Windows TTS）", configuration.EnableChineseTts, x => configuration.EnableChineseTts = x);
