@@ -6,6 +6,7 @@ var entries = DancingMadPreset.CreateEntries();
 Check(skills.Count == 6, "应该有 6 个默认技能");
 Check(skills.Select(x => x.Key).Distinct(StringComparer.OrdinalIgnoreCase).Count() == skills.Count, "技能 key 必须唯一");
 Check(skills.All(x => Math.Abs(x.LeadSeconds - 4f) < 0.001f), "默认提前量必须为 4 秒");
+Check(skills.All(x => x.IconId != 0), "默认技能必须配置游戏图标");
 Check(entries.Count == 65, "默认计划应该有 65 个时间点");
 Check(entries.Select(x => x.Id).Distinct().Count() == entries.Count, "时间点 ID 必须唯一");
 Check(entries.SequenceEqual(entries.OrderBy(x => x.TimeSeconds)), "时间点必须升序排列");

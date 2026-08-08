@@ -7,6 +7,7 @@ public sealed class SkillSetting
     public bool Enabled { get; set; } = true;
     public float LeadSeconds { get; set; } = 4f;
     public uint Color { get; set; } = 0xFFFFFFFF;
+    public uint IconId { get; set; }
 }
 
 public sealed class TimelineEntry

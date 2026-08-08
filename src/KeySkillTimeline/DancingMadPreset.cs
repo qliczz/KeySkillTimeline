@@ -9,12 +9,12 @@ public static class DancingMadPreset
 
     public static List<SkillSetting> CreateSkills() =>
     [
-        new() { Key = "temperance", Name = "节制", Color = 0xFFFFB770 },
-        new() { Key = "caress", Name = "神爱抚", Color = 0xFFE8A8FF },
-        new() { Key = "aquaveil", Name = "水流幕", Color = 0xFF57C8FF },
-        new() { Key = "benison", Name = "神祝祷", Color = 0xFF8AF0B7 },
-        new() { Key = "asylum", Name = "庇护所", Color = 0xFFD1E38F },
-        new() { Key = "liturgy", Name = "礼仪之铃", Color = 0xFFFFA6D5 },
+        new() { Key = "temperance", Name = "节制", Color = 0xFFFFB770, IconId = 2645 },
+        new() { Key = "caress", Name = "神爱抚", Color = 0xFFE8A8FF, IconId = 2128 },
+        new() { Key = "aquaveil", Name = "水流幕", Color = 0xFF57C8FF, IconId = 2648 },
+        new() { Key = "benison", Name = "神祝祷", Color = 0xFF8AF0B7, IconId = 2638 },
+        new() { Key = "asylum", Name = "庇护所", Color = 0xFFD1E38F, IconId = 2632 },
+        new() { Key = "liturgy", Name = "礼仪之铃", Color = 0xFFFFA6D5, IconId = 2649 },
     ];
 
     public static readonly PhaseMarker[] Phases =
